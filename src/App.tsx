@@ -51,32 +51,60 @@ function App() {
     
     switch (code) {
       case "ArrowDown":
-        if (focusedResult < results.length - 1) {
-          setFocusedResult(focusedResult + 1);
+      case "Tab":
+        e.preventDefault()
+        if (focusedResult < results.length) {
+          setFocusedResult(
+            focusedResult === results.length - 1
+              ? 0
+              : focusedResult + 1
+          );
         }
         break;
       case "ArrowUp":
-        if (focusedResult > 0) {
-          setFocusedResult(focusedResult - 1);
+        if (focusedResult >= 0) {
+          setFocusedResult(focusedResult === 0
+            ? results.length - 1
+            : focusedResult - 1);
         }
         break;
       case "Enter":
-        handleItemClick(results[focusedResult])
+        handleSubmit()
     }
+  }
+
+  const handleSubmit = () => {
+    setResults([]);
+    setLoading(false);
+    handleItemClick(results[focusedResult])
+    setValue("");
   }
 
   const handleItemMouseOver = (index: number) => {
     setFocusedResult(index);
   }
+  
+  const handleClearValue = () => {
+    setFocusedResult(0);
+    setResults([]);
+    setValue("")
+  }
 
   return (
     <Wrapper>
       <InputWrapper>
+        <Hint>Use <strong>Tab</strong>, <strong>ArrowUp</strong> or <strong>ArrowDownkeys</strong><br />to navigate results. Hit <strong>Enter</strong> to see result.</Hint>
+        <ClearIcon onClick={handleClearValue}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-circle" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+          </svg>
+        </ClearIcon>
         <StyledInput
           isOpen={showDropdown}
           onKeyDown={handleKeydown}
           type="text"
-          placeholder="Search something"
+          placeholder="Search for something..."
           value={value}
           onChange={handleInput}
         />
@@ -134,6 +162,30 @@ const StyledInput = styled.input<{isOpen?: boolean}>`
   `}
 `
 
+const ClearIcon = styled.button`
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  height: 100%;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-left: 1px solid #999;
+  background-color: transparent;
+  border-radius: 0 6px 6px 0;
+
+  &:hover {
+    background-color: teal;
+    cursor: pointer;
+
+    svg {
+      fill: white;
+    }
+  }
+`
+
 const Dropdown = styled.div`
   position: absolute;
   display: flex;
@@ -148,6 +200,17 @@ const Dropdown = styled.div`
   border-radius: 0 0 6px 6px;
   overflow: hidden;
   box-sizing: border-box;
+`
+
+const Hint = styled.p`
+  font-size: 14px;
+  color: #444;
+  position: absolute;
+  text-align: center;
+  bottom: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  width: 100%;
 `
 
 const DropdownButton = styled.div<{isFocused?: boolean}>`
